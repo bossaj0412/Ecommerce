@@ -1,9 +1,7 @@
 import mongoose from "mongoose";
-
 import Product from "../model/product.schema.js";
 import asyncHandler from "../services/asyncHandler.js";
 import CustomError from "../utils/customError.js";
-import { categoryFilterApi, priceFilter, searchApi } from "../features/apiSearch.js";
 import { apiFeatures } from "../features/apiFeture.js";
 
 /******************************************************
@@ -15,7 +13,7 @@ import { apiFeatures } from "../features/apiFeture.js";
  * @returns User Object
  ******************************************************/
 
-export const createProduct = asyncHandler( async (req, res, next) => {
+export const createProduct = asyncHandler(async (req, res, next) => {
   const product = await Product.create(req.body);
   res.status(201).json({
     success: true,
@@ -32,51 +30,29 @@ export const createProduct = asyncHandler( async (req, res, next) => {
  * @returns User Object
  ******************************************************/
 
-export const getAllProduct = asyncHandler( async (req, res) => {
+export const getAllProduct = asyncHandler(async (req, res,next) => {
+  const resultPerPage = 8;
+  const productsCount = await Product.countDocuments();
 
-    // const product = await Product.find();
-    //  // for search functionality
-    // const str=(req.query);
-    // // var newProduct=  searchApi(product,{...str});
-    // // console.log(typeof(product))
-    // /*******  category filter *******/
-    // // console.log(req.query)
-    // // newProduct= categoryFilterApi(Product.find(),{...str});
+  const apiFeature = new apiFeatures(Product.find(), req.query)
+    .search()
+    .filter();
 
-    // /*******  Price filter *******/
-    // let newProduct= await priceFilter( product,{...str})
-    // const obj=;
-    // const temp=await roduct.find({ price: { '$gt': '49', '$lt': '100' } });
-    // console.log(temp);
-    // console.log(newProduct);
-    // res.status(200).json({
-    //   sucess: true,
-    //   newProduct,
-    // });
+  let products = await apiFeature.query;
 
-    const resultPerPage = 8;
-    const productsCount = await Product.countDocuments();
-  
-    const apiFeature = new apiFeatures(Product.find(), req.query)
-      .search()
-      .filter();
-  
-    let products = await apiFeature.query;
-  
-    let filteredProductsCount = products.length;
-  
-    // apiFeature.pagination(resultPerPage);
-  
-    // products = await apiFeature.query;
+  let filteredProductsCount = products.length;
 
-    res.status(200).json({
-      success: true,
-      products,
-      productsCount,
-      resultPerPage,
-      filteredProductsCount,
-    });
-  
+  // apiFeature.pagination(resultPerPage);
+
+  // products = await apiFeature.query;
+
+  res.status(200).json({
+    success: true,
+    products,
+    productsCount,
+    resultPerPage,
+    filteredProductsCount,
+  });
 });
 
 /******************************************************
@@ -92,7 +68,7 @@ export const getProductDetails = asyncHandler(async (req, res, next) => {
   const product = await Product.findById(req.params.id);
 
   if (!product) {
-    throw new CustomError("No product was found", 404)
+    throw new CustomError("No product was found", 404);
   }
 
   res.status(200).json({
@@ -110,10 +86,10 @@ export const getProductDetails = asyncHandler(async (req, res, next) => {
  * @returns User Object
  ******************************************************/
 
-export const updateProduct = asyncHandler(async (req, res) => {
+export const updateProduct = asyncHandler(async (req, res,next) => {
   let product = await Product.findById(req.params.id);
   if (!product) {
-    throw new CustomError("No product was found", 404)
+    throw new CustomError("No product was found", 404);
   }
   product = await Product.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -135,7 +111,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
  * @returns deleted product
  ******************************************************/
 
-export const deleteProduct = asyncHandler(async (req, res) => {
+export const deleteProduct = asyncHandler(async (req, res,next) => {
   const product = await Product.findById(req.params.id);
   if (!product) {
     throw new CustomError(" invalid id", 404);
