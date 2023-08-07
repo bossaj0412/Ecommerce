@@ -14,6 +14,10 @@ import { apiFeatures } from "../features/apiFeture.js";
  ******************************************************/
 
 export const createProduct = asyncHandler(async (req, res, next) => {
+  // req. user contains data about user
+
+  req.body.user = req.user.id;
+
   const product = await Product.create(req.body);
   res.status(201).json({
     success: true,
@@ -30,7 +34,7 @@ export const createProduct = asyncHandler(async (req, res, next) => {
  * @returns User Object
  ******************************************************/
 
-export const getAllProduct = asyncHandler(async (req, res,next) => {
+export const getAllProduct = asyncHandler(async (req, res, next) => {
   const resultPerPage = 8;
   const productsCount = await Product.countDocuments();
 
@@ -38,13 +42,10 @@ export const getAllProduct = asyncHandler(async (req, res,next) => {
     .search()
     .filter();
 
+  apiFeature.pagination(resultPerPage);
+
   let products = await apiFeature.query;
-
   let filteredProductsCount = products.length;
-
-  // apiFeature.pagination(resultPerPage);
-
-  // products = await apiFeature.query;
 
   res.status(200).json({
     success: true,
@@ -86,7 +87,7 @@ export const getProductDetails = asyncHandler(async (req, res, next) => {
  * @returns User Object
  ******************************************************/
 
-export const updateProduct = asyncHandler(async (req, res,next) => {
+export const updateProduct = asyncHandler(async (req, res, next) => {
   let product = await Product.findById(req.params.id);
   if (!product) {
     throw new CustomError("No product was found", 404);
@@ -111,7 +112,7 @@ export const updateProduct = asyncHandler(async (req, res,next) => {
  * @returns deleted product
  ******************************************************/
 
-export const deleteProduct = asyncHandler(async (req, res,next) => {
+export const deleteProduct = asyncHandler(async (req, res, next) => {
   const product = await Product.findById(req.params.id);
   if (!product) {
     throw new CustomError(" invalid id", 404);

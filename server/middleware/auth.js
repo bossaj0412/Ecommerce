@@ -24,3 +24,15 @@ export const isAuthenticated= asyncHandler(async(req,res,next)=>{
     // next();
 
 })
+
+export const authorizeRoles= (...roles)=> asyncHandler( async (req,res,next)=>{
+
+    if( ! roles.includes(req.user.role)){
+        throw new CustomError(`role : ${req.user.role } is not allowed to acess this page`, 404);
+    }
+
+    next();
+
+})
+
+

@@ -38,8 +38,8 @@ const userSchema = mongoose.Schema({
     type: String,
     default: "user",
   },
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
+  forgotPasswordToken: String,
+  forgotPasswordExpiry: Date,
 });
 
 // encrypt password
@@ -84,12 +84,14 @@ userSchema.methods = {
       .update(forgotToken)
       .digest("hex")
 
-      this.forgotPasswordExpiry = Date.now() + 20 * 60 * 1000
+      this.forgotPasswordExpiry = Date.now() + 20 * 60 * 1000;
       //step 2 - return values to user
 
       return forgotToken
 
   }
+
+
 }
 
 
