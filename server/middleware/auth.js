@@ -15,7 +15,7 @@ export const isAuthenticated= asyncHandler(async(req,res,next)=>{
         const data =   JWT.verify(token, process.env.JWT_SECRET)
         //_id, find user based on id, set this in req.user
         req.user = await User.findById(data._id);
-        console.log(req.user);
+        // console.log(req.user);
         next();
     // } catch (error) {
     //     throw new CustomError('NOt authorized to access this route', 401)

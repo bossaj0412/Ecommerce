@@ -146,6 +146,134 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   user.forgotPasswordToken=undefined;
   user.forgotPasswordExpiry=undefined;
   await user.save();
-  
+
 
 });
+
+
+export const getUserDetail= asyncHandler( async (req,res,next)=>{
+
+    const user= await User.findById(req.user._id);
+    res.status(200).json({
+        sucess:true,
+        user
+    })
+
+})
+
+export const changePassword= asyncHandler( async (req,res,next)=>{
+
+    const {oldPassword, newPassword}=req.body;
+
+    const user= await User.findById(req.user._id).select("+password");
+
+    if(! await user.comparePassword(oldPassword)){
+        throw new CustomError("plese write your correct old password", 404);
+    }
+
+    user.password=newPassword;
+
+    await user.save({validateBeforeSave:true});
+
+    res.status(200).json({
+        sucess:true,
+        message: "password updated sucessfully " ,
+        user
+    })
+
+})
+
+export const updateProfile= asyncHandler(async (req,res,next)=>{
+
+    const newDetails={
+        name:req.body.name,
+        email:req.body.email,
+    }
+
+    const user= await User.findByIdAndUpdate(req.user.id, newDetails, {
+        new:true,
+        runValidators:true,
+        useFindAndModify:false
+
+    })
+
+    res.status(200).json({
+        sucess:true,
+        message:"user updated sucessfully",
+        user
+    })
+
+})
+// admin access of all user
+export const getAllUser= asyncHandler(async (req,res,next)=>{
+
+    const users= await User.find();
+    res.status(200).json({
+        sucess:true,
+        users
+    })
+
+})
+
+// admin have access of single user
+export const getUserViaAdmin = asyncHandler(async (req,res,next)=>{
+
+    const user= await User.findById(req.params.id);
+
+    if(!user){
+        throw new CustomError(" user not found/ invalid user id", 404);
+    }
+
+    res.status(200).json({
+        sucess:true,
+        user
+    })
+
+})
+
+// admin have access to update user
+export const updateUserViaAdmin= asyncHandler(async(req,res,next)=>{
+
+    const newDetails={
+        name:req.body.name,
+        email:req.body.email,
+        role:req.body.role
+    }
+
+    const user= await User.findByIdAndUpdate(req.params.id, newDetails, {
+        new:true,
+        runValidators:true,
+        useFindAndModify:false
+
+    })
+
+    if(!user)throw new CustomError("user not found ", 404)
+
+    res.status(200).json({
+        sucess:true,
+        message:"user updated sucessfully",
+        user
+    })
+
+})
+
+// admin have access to delete user
+
+export const deleteUserViaAdmin= asyncHandler(async(req,res,next)=>{
+
+    const user= await User.findById(req.params.id);
+
+    if(!user){
+        throw new CustomError("user not found/ invalid user id ", 404);
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+        sucess:true,
+        message:"user deleted sucessfully "
+    })
+
+})
+
+// create new review and update new review
